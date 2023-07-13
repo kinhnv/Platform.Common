@@ -13,5 +13,4 @@ publish-code-job:
     - main
   script:
     - git remote set-url origin $GITHUB_URL 
-    - if [ `git branch --list main` ] then git checkout -b main && git push origin main fi
-    - git push -u origin HEAD:main
+    - sh ../push-code.sh
