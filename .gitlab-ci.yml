@@ -13,4 +13,4 @@ publish-code-job:
     - main
   script:
     - git remote set-url origin $GITHUB_URL 
-    - sh ./push-code.sh
+    - sh .push-code.sh
