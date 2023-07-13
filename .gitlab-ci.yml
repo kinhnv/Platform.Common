@@ -1,4 +1,4 @@
-include: './pipeline/.prepare-ssh.yml'
+include: 'pipeline/.prepare-ssh.yml'
 
 stages:
   - publish-code
