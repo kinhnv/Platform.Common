@@ -1,3 +1,5 @@
+include: ".prepare-ssh.yml"
+
 .dotnet_build:
   tags:
     - "shell"
