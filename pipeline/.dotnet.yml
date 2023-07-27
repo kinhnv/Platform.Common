@@ -1,6 +1,3 @@
-include:
-  - "https://raw.githubusercontent.com/kinhnv/Platform.Common/main/pipeline/.prepare-ssh.yml"
-
 .dotnet_build:
   tags:
     - "shell"
