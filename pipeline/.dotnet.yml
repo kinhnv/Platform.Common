@@ -83,8 +83,8 @@
         --store-password-in-clear-text \
         --name gitlab "$GITLAB_SOURCE_URL"
     - dotnet build ${API_CSPROJ_FILE}
-    - cp -r ${CLIENT_FILE_TEMP} ${CLIENT_DIR}
     - sed -i "s/\"\/api\//\"\/api\/${PREFIX}\//g" ${CLIENT_FILE_TEMP}
+    - cp -r ${CLIENT_FILE_TEMP} ${CLIENT_DIR}
     - cd ${CLIENT_DIR}
     - dotnet pack ${CLIENT_CSPROJ_FILE} -c Release /p:Version=$VERSION
     - dotnet nuget push "${CLIENT_NUPKG_FILE_NO_VERSION_AND_TYPE}.$VERSION.nupkg" --source "gitlab"
