@@ -63,3 +63,31 @@
         git checkout -b main; 
         git push -u origin main;
       fi
+
+.client_pack:
+  image:
+    name: registry.gitlab.com/i3rothers/platform/client-packing:1.0.10
+    entrypoint:
+      - ""
+  tags:
+    - docker
+  rules:
+    - if: $CI_COMMIT_TAG != null
+  script:
+    - VERSION=${CI_COMMIT_TAG:1}
+    - >
+      dotnet nuget add source \
+        --username $GITLAB_SOURCE_USERNAME \
+        --password $GITLAB_SOURCE_TOKEN \
+        --store-password-in-clear-text \
+        --name gitlab "$GITLAB_SOURCE_URL"
+    - dotnet build ${API_CSPROJ_FILE}
+    - cp -r ${CLIENT_FILE_TEMP} ${CLIENT_DIR}
+    - sed -i "s/\"\/api\//\"\/api\/${PREFIX}\//g" ${CLIENT_FILE_TEMP}
+    - cd ${CLIENT_DIR}
+    - dotnet pack ${CLIENT_CSPROJ_FILE} -c Release /p:Version=$VERSION
+    - dotnet nuget push "${CLIENT_NUPKG_FILE_NO_VERSION_AND_TYPE}.$VERSION.nupkg" --source "gitlab"
+    - echo "@i3rothers:registry=${NPM_SOURCE_URL}" > .npmrc
+    - echo "${NPM_SOURCE_URL:6}:_authToken=${GITLAB_SOURCE_TOKEN}" >> .npmrc
+    - sed -i "s/VERSION/$VERSION/g" ./package.json
+    - npm publish
