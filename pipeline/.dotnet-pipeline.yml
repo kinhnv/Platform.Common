@@ -1,0 +1,65 @@
+.dotnet_build:
+  tags:
+    - "shell"
+  before_script:
+    - docker login registry.gitlab.com --username kinhnv --password ${GITLAB_SOURCE_TOKEN}
+  script:
+    - >
+      docker build -t ${IMAGE} \
+        --build-arg GITLAB_SOURCE_USERNAME=$GITLAB_SOURCE_USERNAME \
+        --build-arg GITLAB_SOURCE_TOKEN=$GITLAB_SOURCE_TOKEN \
+        --build-arg GITLAB_SOURCE_URL=$GITLAB_SOURCE_URL \
+        ${CI_PROJECT_DIR} \
+        -f ${DOCKERFILE}
+    - docker push ${IMAGE}
+
+.dotnet_test:
+  image: 
+    name: "mcr.microsoft.com/dotnet/sdk:6.0"
+    entrypoint:
+      - ""
+  needs: [build]
+  extends:
+    - .production_config
+  tags:
+    - "docker"
+  script:
+    - >
+      dotnet nuget add source \
+        --username $GITLAB_SOURCE_USERNAME \
+        --password $GITLAB_SOURCE_TOKEN \
+        --store-password-in-clear-text \
+        --name gitlab "$GITLAB_SOURCE_URL"
+    - cd ${UNIT_TEST_FOLDER}
+    - dotnet test --logger:"console;verbosity=detailed"
+
+.dotnet_deploy:
+  extends:
+    - .prepare_ssh
+    - .production_config
+  needs: [test]
+  tags:
+    - "shell"
+  script:
+    - git clone $GITOPS_URL && cd gitops
+    - yq eval "${TAG_CONFIG} = \"${VERSION}\"" -i ${VALUE_YAML_FILE}
+    - >
+      if [ -n "$(git status | grep ${VALUE_YAML_FILE})" ]; then
+        echo "there are some changes";
+        git add ${VALUE_YAML_FILE};
+        git commit -m "change to version $VERSION";
+        git push;
+      else 
+        echo "Don't have any changes'";
+      fi
+    - cd .. && rm -rf gitops
+    - git remote set-url origin $GITHUB_URL
+    - >
+      if [ `git branch --list main` ]; then
+        echo "Push to existing branch"; 
+        git push -u origin HEAD:main;
+      else
+        echo "Create new branch";
+        git checkout -b main; 
+        git push -u origin main;
+      fi
