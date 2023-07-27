@@ -14,6 +14,7 @@ include: ".prepare-ssh.yml"
         ${CI_PROJECT_DIR} \
         -f ${DOCKERFILE}
     - docker push ${IMAGE}
+    - docker image rm ${IMAGE}
 
 .dotnet_test:
   image: 
