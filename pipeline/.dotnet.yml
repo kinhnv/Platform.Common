@@ -84,6 +84,7 @@
         --name gitlab "$GITLAB_SOURCE_URL"
     - dotnet build ${API_CSPROJ_FILE}
     - sed -i "s/\"\/api\//\"\/api\/${PREFIX}\//g" ${CLIENT_FILE_TEMP}
+    - sed -i "s/message:\ string;/override message:\ string;/g" ${CLIENT_FILE_TEMP_FILE_TS}
     - cp -r ${CLIENT_FILE_TEMP} ${CLIENT_DIR}
     - cd ${CLIENT_DIR}
     - dotnet pack ${CLIENT_CSPROJ_FILE} -c Release /p:Version=$VERSION
