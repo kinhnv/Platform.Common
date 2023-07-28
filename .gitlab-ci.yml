@@ -9,13 +9,18 @@ publish-code-job:
     - "shell"
   extends:
     - .prepare_ssh
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_TAG != null
   script:
     - git remote set-url origin $GITHUB_URL
     - >
       if [ `git branch --list main` ]; then
-        echo "push to existing branch"; git push -u origin HEAD:main
+        echo "push to existing branch"; 
+        git push -u origin HEAD:main
       else
-        echo "create new branch"; git checkout -b main; git push origin main
+        echo "create new branch"; 
+        git checkout -b main; 
+        git push origin main
       fi
+    - git tag $CI_COMMIT_TAG
+    - git push --tags
