@@ -22,5 +22,4 @@ publish-code-job:
         git checkout -b main; 
         git push origin main
       fi
-    - git tag $CI_COMMIT_TAG
     - git push --tags
