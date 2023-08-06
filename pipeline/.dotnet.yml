@@ -87,10 +87,11 @@
     - sed -i "s/\"\/api\//\"\/api\/${PREFIX}\//g" ${CLIENT_TS_FILE}
     - sed -i "s/message:\ string;/override message:\ string;/g" ${CLIENT_TS_FILE}
     - sed -i "s/@Injectable()/@Injectable({ providedIn:\ 'root' })/g" ${CLIENT_TS_FILE}
-    - cd ${CLIENT_DIR}
+    - cd ${DOTNET_CLIENT_DIR}
     - dotnet pack ${CLIENT_CSPROJ_FILE} -c Release /p:Version=$VERSION
     - dotnet nuget push "${CLIENT_NUPKG_FILE_NO_VERSION_AND_TYPE}.$VERSION.nupkg" --source "gitlab"
     - sed -i "s/VERSION/$VERSION/g" ${PACKAGE_FILE}
+    - cd ${ANGULAR_CLIENT_DIR}
     - npm install
     - npm run build
     - cd ${OUTPUT_DIR}
